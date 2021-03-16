@@ -60,7 +60,7 @@ router.post('/login', checkUsernameExists, async (req, res, next) => {
    */
 	try {
 		const { username, password } = req.body;
-		const user = await Users.findBy(username);
+		const user = await Users.findBy({ username }).first();
 
 		const passwordValid = await bcrypt.compare(password, user.password);
 
@@ -71,16 +71,17 @@ router.post('/login', checkUsernameExists, async (req, res, next) => {
 		}
 		const token = jwt.sign(
 			{
-				userID: user_id,
-				useRole: user.role
+				userID: user.user_id,
+				userName: user.username,
+				useRole: user.role_name
 			},
 			JWT_SECRET
 		);
 
 		res.cookie('token', token);
 		res.json({
-			message: `Welcome ${user.username}`,
-			token: `${user.token}`
+			message: `${user.username} is back!`,
+			token: `${token}`
 		});
 	} catch (err) {
 		next(err);
